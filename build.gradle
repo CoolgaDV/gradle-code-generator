@@ -1,0 +1,45 @@
+import groovy.io.FileType
+
+task cleanResult(type: Delete) {
+    delete 'result'
+}
+
+task scanProperties(type: ChangesScanTask) {
+    scanChanges()
+    dependsOn cleanResult
+}
+
+task sayHello(type: GreetingTask)
+
+new File('properties').eachFileRecurse (FileType.FILES) { file ->
+
+    Properties values = new Properties()
+    file.withInputStream {
+        values.load(it)
+    }
+
+    def name = file.name - '.properties'
+    def projectPath = "result/project-${name}"
+
+    def generateSourcesTask = tasks.create(name: "generate${name.capitalize()}", type: Copy) {
+        from('template') {
+            include 'settings.gradle'
+            include 'src/main/java/cdv/Application.java'
+            expand(values)
+        }
+        from('template') {
+            exclude 'settings.gradle'
+            exclude 'src/main/java/cdv/Application.java'
+        }
+        into projectPath
+    }
+
+    def gradleBuildTask = tasks.create(name: "build${name.capitalize()}", type: GradleBuild) {
+        buildFile = "${projectPath}/build.gradle"
+        tasks = ['clean', 'build']
+    }
+
+    generateSourcesTask.dependsOn scanProperties
+    gradleBuildTask.dependsOn generateSourcesTask
+    sayHello.dependsOn gradleBuildTask
+}
