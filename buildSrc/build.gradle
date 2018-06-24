@@ -4,4 +4,5 @@ repositories {
 
 dependencies {
     compile 'org.eclipse.jgit:org.eclipse.jgit:4.11.0.201803080745-r'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.9.5'
 }

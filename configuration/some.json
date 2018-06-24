@@ -1,0 +1,6 @@
+{
+  "groupId" : "some.some.some",
+  "artifactId" : "some-some",
+  "version" : "1.0.2",
+  "deprecate" : true
+}
